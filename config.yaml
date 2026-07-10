@@ -1,0 +1,7 @@
+# batch processing configuration
+model:
+  path: "yolo11s.pt"
+
+data:
+  input_folder: "test_images"
+  output_file: "my_predictions.csv"
