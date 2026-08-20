@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database (Evidently ka data yahan save hoga)
+  db:
+    image: postgres:14
+    container_name: mlops_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: evidently_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Grafana Dashboard (Graphs aur alerts dikhane ke liye)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mlops_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: adminpassword
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+# Volumes taake computer restart hone par data delete na ho
+volumes:
+  postgres_data:
+  grafana_data:

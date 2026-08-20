@@ -14,7 +14,7 @@ except:
 client.create_model_version(
     name="yolo11s-cctv-detector",
     source="file:///home/faizan/Documents/mlops-zoomcamp-journey/mlruns/1/41d89f8bac2d406ba680e39a8c2971d8/artifacts/best.pt",
-    run_id="41d89f8bac2d406ba680e39a8c2971d8"
+    run_id="41d89f8bac2d406ba680e39a8c2971d8",
 )
 
 print("Model version created!")
