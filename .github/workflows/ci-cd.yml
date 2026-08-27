@@ -14,15 +14,13 @@ jobs:
     steps:
       # Task A: Download the repository code
       - name: Checkout Code
-        uses: actions/checkout@v4  # Using the latest version
+        uses: actions/checkout@v4
 
-      # Task B: Install and Start LocalStack in the background
+      # Task B: Start LocalStack using raw Docker
       - name: Start LocalStack
-        uses: LocalStack/setup-localstack@v0.2.0
-        with:
-          image-tag: '3.4.0'
-        env:
-          LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: "1"
+        run: |
+          docker run -d -p 4566:4566 -e DEFAULT_REGION=us-east-1 localstack/localstack:2.3.0
+          sleep 15
 
       # Task C: Install Terraform
       - name: Setup Terraform
@@ -32,12 +30,11 @@ jobs:
       - name: Configure Dummy AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: "test"      # Dummy key for LocalStack
-          aws-secret-access-key: "test"  # Dummy key for LocalStack
+          aws-access-key-id: "test"
+          aws-secret-access-key: "test"
           aws-region: us-east-1
 
       # Task E: Initialize Terraform
-      # (We must reconfigure so it points to our local container, not real AWS)
       - name: Terraform Init
         run: terraform init -reconfigure
         working-directory: ./infra
