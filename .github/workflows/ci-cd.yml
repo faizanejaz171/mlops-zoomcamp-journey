@@ -1,6 +1,5 @@
 name: MLOps CI/CD Pipeline (LocalStack)
 
-# 1. Trigger: When should the workflow start?
 on:
   pull_request:
     branches:
@@ -10,6 +9,12 @@ jobs:
   terraform-plan:
     name: Terraform Plan & Check
     runs-on: ubuntu-latest
+
+    # Humne dummy keys yahan job ke start mein rakh di hain
+    env:
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_DEFAULT_REGION: "us-east-1"
 
     steps:
       # Task A: Download the repository code
@@ -26,13 +31,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Task D: Set Dummy AWS Credentials for LocalStack
-      - name: Configure Dummy AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: "test"
-          aws-secret-access-key: "test"
-          aws-region: us-east-1
+      # (Task D deleted! We don't need the official AWS action for LocalStack)
 
       # Task E: Initialize Terraform
       - name: Terraform Init
