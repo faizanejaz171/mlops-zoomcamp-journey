@@ -21,6 +21,8 @@ jobs:
         uses: LocalStack/setup-localstack@v0.2.0
         with:
           image-tag: 'latest'
+        env:
+          LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: "1"
 
       # Task C: Install Terraform
       - name: Setup Terraform
