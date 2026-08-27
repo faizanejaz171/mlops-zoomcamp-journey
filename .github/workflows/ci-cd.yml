@@ -1,0 +1,46 @@
+name: MLOps CI/CD Pipeline (LocalStack)
+
+# 1. Trigger: When should the workflow start?
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan & Check
+    runs-on: ubuntu-latest
+
+    steps:
+      # Task A: Download the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4  # Using the latest version
+
+      # Task B: Install and Start LocalStack in the background
+      - name: Start LocalStack
+        uses: LocalStack/setup-localstack@v0.2.0
+        with:
+          image-tag: 'latest'
+
+      # Task C: Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Task D: Set Dummy AWS Credentials for LocalStack
+      - name: Configure Dummy AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: "test"      # Dummy key for LocalStack
+          aws-secret-access-key: "test"  # Dummy key for LocalStack
+          aws-region: us-east-1
+
+      # Task E: Initialize Terraform
+      # (We must reconfigure so it points to our local container, not real AWS)
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: ./infra
+
+      # Task F: Run Terraform Plan to check infra changes
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./infra
