@@ -1,0 +1,40 @@
+name: MLOps CI/CD Pipeline (LocalStack)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan & Check
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_DEFAULT_REGION: "us-east-1"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Start LocalStack
+        run: |
+          docker run -d -p 4566:4566 -e DEFAULT_REGION=us-east-1 localstack/localstack:2.3.0
+          sleep 15
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # --- NAYA STEP: Khali LocalStack mein S3 bucket banayein ---
+      - name: Create Backend S3 Bucket
+        run: aws --endpoint-url=http://localhost:4566 s3 mb s3://faizan-mlops-bucket-v2
+
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: ./infra
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./infra
