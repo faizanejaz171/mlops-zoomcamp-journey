@@ -1,13 +1,17 @@
 name: MLOps CI/CD Pipeline (LocalStack)
 
+# 1. Triggers: Runs on PRs targeting 'main', and on direct pushes (merges) to 'main'
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  terraform-plan:
-    name: Terraform Plan & Check
+  terraform-plan-apply:
+    name: Terraform CI/CD Check & Deploy
     runs-on: ubuntu-latest
 
     env:
@@ -27,7 +31,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # --- NAYA STEP: Khali LocalStack mein S3 bucket banayein ---
       - name: Create Backend S3 Bucket
         run: aws --endpoint-url=http://localhost:4566 s3 mb s3://faizan-mlops-bucket-v2
 
@@ -37,4 +40,11 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ./infra
+
+      # --- NEW STEP: THE CD (DEPLOYMENT) ---
+      # This step will only execute when the code is pushed/merged to the main branch
+      - name: Terraform Apply (Auto Deploy)
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
         working-directory: ./infra
